@@ -13,6 +13,10 @@ def render_cell(value, column):
     if not column.endswith("_markdown"):
         return None
     # Render it!
+    return render_markdown(value)
+
+
+def render_markdown(value):
     html = bleach.linkify(
         bleach.clean(
             markdown.markdown(value, output_format="html5"),
@@ -41,3 +45,10 @@ def render_cell(value, column):
         )
     )
     return jinja2.Markup(html)
+
+
+@hookimpl
+def extra_template_vars():
+    return {
+        "render_markdown": render_markdown,
+    }

@@ -25,3 +25,17 @@ select '# Hello there
 [And a link](https://github.com/simonw/datasette-render-markdown).'
 as demo_markdown
 ```
+
+## Markdown in templates
+
+The plugin also adds a new template function: `render_markdown(value)`. You can use this in your templates like so:
+
+```html+jinja
+{{ render_markdown("""
+# This is markdown
+
+* One
+* Two
+* Three
+""") }}
+```
