@@ -24,7 +24,57 @@ def test_render_cell_no_markdown_suffix():
     )
 
 
-def test_render_markdown():
+@pytest.mark.parametrize(
+    "metadata",
+    [
+        # Table level
+        {
+            "databases": {
+                "mydatabase": {
+                    "tables": {
+                        "mytable": {
+                            "plugins": {
+                                "datasette-render-markdown": {"patterns": ["*_md"],}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        # Database level
+        {
+            "databases": {
+                "mydatabase": {
+                    "plugins": {"datasette-render-markdown": {"patterns": ["*_md"],}}
+                }
+            }
+        },
+        # Global level
+        {"plugins": {"datasette-render-markdown": {"patterns": ["*_md"],}}},
+    ],
+)
+def test_render_markdown_metadata_patterns(metadata):
+    expected = "<h1>Hello there</h1>\n<ul>\n<li>one\n<em>two\n</em>three</li>\n</ul>"
+    input = "# Hello there\n* one\n*two\n*three"
+    actual = render_cell(
+        input,
+        column="demo_md",
+        table="mytable",
+        database="mydatabase",
+        datasette=Datasette([], metadata=metadata),
+    )
+    assert expected == actual
+    # Without metadata should not render
+    assert None == render_cell(
+        input,
+        column="demo_md",
+        table="mytable",
+        database="mydatabase",
+        datasette=Datasette([]),
+    )
+
+
+def test_render_markdown_default_pattern():
     expected = "<h1>Hello there</h1>\n<ul>\n<li>one\n<em>two\n</em>three</li>\n</ul>"
     input = "# Hello there\n* one\n*two\n*three"
     actual = render_cell(
@@ -35,6 +85,19 @@ def test_render_markdown():
         datasette=Datasette([]),
     )
     assert expected == actual
+
+
+def test_render_markdown_default_pattern_disabled_if_empty_listt():
+    input = "# Hello there\n* one\n*two\n*three"
+    assert None == render_cell(
+        input,
+        column="demo_markdown",
+        table="mytable",
+        database="mydatabase",
+        datasette=Datasette(
+            [], metadata={"plugins": {"datasette-render-markdown": {"patterns": []}}}
+        ),
+    )
 
 
 @pytest.mark.parametrize(

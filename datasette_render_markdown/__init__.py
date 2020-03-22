@@ -1,5 +1,6 @@
 import re
 import bleach
+from fnmatch import fnmatch
 import markdown
 from datasette import hookimpl
 import jinja2
@@ -20,8 +21,12 @@ def render_cell(value, column, table, database, datasette):
         should_convert = True
 
     # Also convert to markdown if table ends in _markdown
-    if column.endswith("_markdown"):
-        should_convert = True
+    patterns = config.get("patterns")
+    if patterns is None:
+        patterns = ["*_markdown"]
+    for pattern in patterns:
+        if fnmatch(column, pattern):
+            should_convert = True
 
     if should_convert:
         return render_markdown(value)
