@@ -6,14 +6,27 @@ import jinja2
 
 
 @hookimpl()
-def render_cell(value, column):
+def render_cell(value, column, table, database, datasette):
     if not isinstance(value, str):
         return None
-    # Only convert to markdown if table ends in _markdown
-    if not column.endswith("_markdown"):
+    should_convert = False
+    config = (
+        datasette.plugin_config(
+            "datasette-render-markdown", database=database, table=table
+        )
+        or {}
+    )
+    if column in (config.get("columns") or []):
+        should_convert = True
+
+    # Also convert to markdown if table ends in _markdown
+    if column.endswith("_markdown"):
+        should_convert = True
+
+    if should_convert:
+        return render_markdown(value)
+    else:
         return None
-    # Render it!
-    return render_markdown(value)
 
 
 def render_markdown(value):
