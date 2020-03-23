@@ -137,3 +137,53 @@ def test_explicit_column(metadata):
         database="mydatabase",
         datasette=Datasette([], metadata=metadata),
     )
+
+
+def test_extensions():
+    text = """
+First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+    """.strip()
+    no_extension = render_cell(
+        text,
+        column="body_markdown",
+        table="mytable",
+        database="mydatabase",
+        datasette=Datasette([]),
+    )
+    assert (
+        """
+<p>First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell</p>
+    """.strip()
+        == no_extension
+    )
+    # Now try again with the tables extension
+    with_extension = render_cell(
+        text,
+        column="body_markdown",
+        table="mytable",
+        database="mydatabase",
+        datasette=Datasette(
+            [],
+            metadata={
+                "plugins": {
+                    "datasette-render-markdown": {
+                        "extensions": ["tables"],
+                        "extra_tags": ["table", "thead", "tr", "th", "td", "tbody"],
+                    }
+                }
+            },
+        ),
+    )
+    assert (
+        "<table>\n<thead>\n<tr>\n<th>First Header</th>\n"
+        "<th>Second Header</th>\n</tr>\n</thead>\n<tbody>\n"
+        "<tr>\n<td>Content Cell</td>\n<td>Content Cell</td>\n"
+        "</tr>\n<tr>\n<td>Content Cell</td>\n"
+        "<td>Content Cell</td>\n</tr>\n</tbody>\n</table>"
+    ) == with_extension

@@ -102,6 +102,10 @@ You can configure a different list of wildcard patterns using the `"patterns"` c
 
 To disable wildcard column matching entirely, set `"patterns": []` in your metadata configuration.
 
+## Markdown extensions
+
+...
+
 ## Markdown in templates
 
 The plugin also adds a new template function: `render_markdown(value)`. You can use this in your templates like so:
@@ -115,3 +119,5 @@ The plugin also adds a new template function: `render_markdown(value)`. You can 
 * Three
 """) }}
 ```
+
+TODO: Ensure this can make use of extensions too.
