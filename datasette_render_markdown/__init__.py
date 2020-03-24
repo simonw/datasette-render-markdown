@@ -19,6 +19,7 @@ def render_cell(value, column, table, database, datasette):
     )
     extensions = config.get("extensions") or []
     extra_tags = config.get("extra_tags") or []
+    extra_attrs = config.get("extra_attrs") or {}
     if column in (config.get("columns") or []):
         should_convert = True
 
@@ -31,12 +32,12 @@ def render_cell(value, column, table, database, datasette):
             should_convert = True
 
     if should_convert:
-        return render_markdown(value, extensions, extra_tags)
+        return render_markdown(value, extensions, extra_tags, extra_attrs)
     else:
         return None
 
 
-def render_markdown(value, extensions=None, extra_tags=None):
+def render_markdown(value, extensions=None, extra_tags=None, extra_attrs=None):
     html = bleach.linkify(
         bleach.clean(
             markdown.markdown(
@@ -65,6 +66,7 @@ def render_markdown(value, extensions=None, extra_tags=None):
                 "h6",
             ]
             + (extra_tags or []),
+            attributes=extra_attrs or {},
         )
     )
     return jinja2.Markup(html)
