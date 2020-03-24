@@ -14,9 +14,9 @@ Install this plugin in the same environment as Datasette to enable this new func
 
 ## Usage
 
-You can explicitly list the columns you would like to treat as markdown using [plugin configuration](https://datasette.readthedocs.io/en/stable/plugins.html#plugin-configuration) in a `metadata.json` file.
+You can explicitly list the columns you would like to treat as Markdown using [plugin configuration](https://datasette.readthedocs.io/en/stable/plugins.html#plugin-configuration) in a `metadata.json` file.
 
-Add a `"datasette-render-markdown"` configuration block and use a `"columns"` key to list the columns you would like to treat as markdown values:
+Add a `"datasette-render-markdown"` configuration block and use a `"columns"` key to list the columns you would like to treat as Markdown values:
 
 ```json
 {
@@ -30,7 +30,7 @@ Add a `"datasette-render-markdown"` configuration block and use a `"columns"` ke
 
 This will cause any `body` column in any table to be treated as markdown and safely rendered using [Python-Markdown](https://python-markdown.github.io/). The resulting HTML is then run through [Bleach](https://bleach.readthedocs.io/) to avoid the risk of XSS security problems.
 
-Save this to `metadata.json` and run datasette with the `--metadata` flag to load this configuration:
+Save this to `metadata.json` and run Datasette with the `--metadata` flag to load this configuration:
 
     $ datasette serve mydata.db --metadata metadata.json
 
@@ -104,13 +104,13 @@ To disable wildcard column matching entirely, set `"patterns": []` in your plugi
 
 ## Markdown extensions
 
-Python-Markdown supports extensions, both [bundled](https://python-markdown.github.io/extensions/) and [third-party](https://github.com/Python-Markdown/markdown/wiki/Third-Party-Extensions). These can be used to enable additional markdown features such as [table support](https://python-markdown.github.io/extensions/tables/).
+The [Python-Markdown library](https://python-markdown.github.io/) that powers this plugin supports extensions, both [bundled](https://python-markdown.github.io/extensions/) and [third-party](https://github.com/Python-Markdown/markdown/wiki/Third-Party-Extensions). These can be used to enable additional Markdown features such as [table support](https://python-markdown.github.io/extensions/tables/).
 
 You can configure support for extensions using the `"extensions"` key in your plugin metadata configuration.
 
 Since extensions may introduce new HTML tags, you will also need to add those tags to the list of tags that are allowed by the [Bleach](https://bleach.readthedocs.io/) sanitizer. You can do that using the `"extra_tags"` key, and you can whitelist additional HTML attributes using `"extra_attrs"`. See [the Bleach documentation](https://bleach.readthedocs.io/en/latest/clean.html#allowed-tags-tags) for more information on this.
 
-Here's how to enable support for [markdown tables](https://python-markdown.github.io/extensions/tables/):
+Here's how to enable support for [Markdown tables](https://python-markdown.github.io/extensions/tables/):
 
 ```json
 {
@@ -179,7 +179,7 @@ The plugin also adds a new template function: `render_markdown(value)`. You can 
 """) }}
 ```
 
-You can load additional extensions and whitelist tags by passing extra arguments to the function like so:
+You can load additional extensions and whitelist tags by passing extra arguments to the function like this:
 
 ```html+jinja
 {{ render_markdown("""
