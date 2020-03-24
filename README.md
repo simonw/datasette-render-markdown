@@ -32,7 +32,7 @@ This will cause any `body` column in any table to be treated as markdown and saf
 
 Save this to `metadata.json` and run datasette with the `--metadata` flag to load this configuration:
 
-    datasette serve mydata.db --metadata metadata.json
+    $ datasette serve mydata.db --metadata metadata.json
 
 The configuration block can be used at the top level, or it can be applied just to specific databases or tables. Here's how to apply it to just the `entries` table in the `news.db` database:
 
