@@ -24,6 +24,22 @@ def test_render_cell_no_markdown_suffix():
     )
 
 
+@pytest.mark.asyncio
+async def test_render_template_tag(tmpdir):
+    (tmpdir / "template.html").write_text(
+        """
+    Demo:
+    {{ render_markdown("* one") }}
+    Done.
+    """.strip(),
+        "utf-8",
+    )
+    datasette = Datasette([], template_dir=str(tmpdir))
+    datasette.app()  # Configures Jinja
+    rendered = await datasette.render_template(["template.html"])
+    assert "Demo:\n    <ul>\n<li>one</li>\n</ul>\n    Done." == rendered
+
+
 @pytest.mark.parametrize(
     "metadata",
     [
@@ -137,3 +153,84 @@ def test_explicit_column(metadata):
         database="mydatabase",
         datasette=Datasette([], metadata=metadata),
     )
+
+
+MARKDOWN_TABLE = """
+First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+""".strip()
+
+RENDERED_TABLE = """
+<table>
+<thead>
+<tr>
+<th>First Header</th>
+<th>Second Header</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Content Cell</td>
+<td>Content Cell</td>
+</tr>
+<tr>
+<td>Content Cell</td>
+<td>Content Cell</td>
+</tr>
+</tbody>
+</table>
+""".strip()
+
+
+def test_extensions():
+    no_extension = render_cell(
+        MARKDOWN_TABLE,
+        column="body_markdown",
+        table="mytable",
+        database="mydatabase",
+        datasette=Datasette([]),
+    )
+    assert (
+        """
+<p>First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell</p>
+    """.strip()
+        == no_extension
+    )
+    # Now try again with the tables extension
+    with_extension = render_cell(
+        MARKDOWN_TABLE,
+        column="body_markdown",
+        table="mytable",
+        database="mydatabase",
+        datasette=Datasette(
+            [],
+            metadata={
+                "plugins": {
+                    "datasette-render-markdown": {
+                        "extensions": ["tables"],
+                        "extra_tags": ["table", "thead", "tr", "th", "td", "tbody"],
+                    }
+                }
+            },
+        ),
+    )
+    assert RENDERED_TABLE == with_extension
+
+
+@pytest.mark.asyncio
+async def test_render_template_tag_with_extensions(tmpdir):
+    (tmpdir / "template.html").write_text(
+        '{{ render_markdown("""'
+        + MARKDOWN_TABLE
+        + '""", extensions=["tables"], extra_tags=["table", "thead", "tr", "th", "td", "tbody"]) }}',
+        "utf-8",
+    )
+    datasette = Datasette([], template_dir=str(tmpdir))
+    datasette.app()  # Configures Jinja
+    rendered = await datasette.render_template(["template.html"])
+    assert RENDERED_TABLE == rendered

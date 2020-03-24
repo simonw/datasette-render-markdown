@@ -10,7 +10,7 @@ Datasette plugin for rendering Markdown.
 
 Install this plugin in the same environment as Datasette to enable this new functionality:
 
-    pip install datasette-render-markdown
+    $ pip install datasette-render-markdown
 
 ## Usage
 
@@ -32,7 +32,7 @@ This will cause any `body` column in any table to be treated as markdown and saf
 
 Save this to `metadata.json` and run datasette with the `--metadata` flag to load this configuration:
 
-    datasette serve mydata.db --metadata metadata.json
+    $ datasette serve mydata.db --metadata metadata.json
 
 The configuration block can be used at the top level, or it can be applied just to specific databases or tables. Here's how to apply it to just the `entries` table in the `news.db` database:
 
@@ -100,7 +100,70 @@ You can configure a different list of wildcard patterns using the `"patterns"` c
 }
 ```
 
-To disable wildcard column matching entirely, set `"patterns": []` in your metadata configuration.
+To disable wildcard column matching entirely, set `"patterns": []` in your plugin metadata configuration.
+
+## Markdown extensions
+
+Python-Markdown supports extensions, both [bundled](https://python-markdown.github.io/extensions/) and [third-party](https://github.com/Python-Markdown/markdown/wiki/Third-Party-Extensions). These can be used to enable additional markdown features such as [table support](https://python-markdown.github.io/extensions/tables/).
+
+You can configure support for extensions using the `"extensions"` key in your plugin metadata configuration.
+
+Since extensions may introduce new HTML tags, you will also need to add those tags to the list of tags that are allowed by the [Bleach](https://bleach.readthedocs.io/) sanitizer. You can do that using the `"extra_tags"` key, and you can whitelist additional HTML attributes using `"extra_attrs"`. See [the Bleach documentation](https://bleach.readthedocs.io/en/latest/clean.html#allowed-tags-tags) for more information on this.
+
+Here's how to enable support for [markdown tables](https://python-markdown.github.io/extensions/tables/):
+
+```json
+{
+    "plugins": {
+        "datasette-render-markdown": {
+            "extensions": ["tables"],
+            "extra_tags": ["table", "thead", "tr", "th", "td", "tbody"],
+        }
+    }
+}
+```
+
+### GitHub-Flavored Markdown
+
+Enabling [GitHub-Flavored Markdown](https://help.github.com/en/github/writing-on-github) (useful for if you are working with data imported from GitHub using [github-to-sqlite](https://github.com/dogsheep/github-to-sqlite)) is a little more complicated.
+
+First, you will need to install the [py-gfm](https://py-gfm.readthedocs.io) package:
+
+    $ pip install py-gfm
+
+Now you can configure it like this. Note that the extension name is `mdx_gfm:GithubFlavoredMarkdownExtension` and you need to whitelist several extra HTML tags and attributes:
+
+```json
+{
+    "plugins": {
+        "datasette-render-markdown": {
+            "extra_tags": [
+                "img",
+                "hr",
+                "br",
+                "details",
+                "summary",
+                "input"
+            ],
+            "extra_attrs": {
+                "input": [
+                    "type",
+                    "disabled",
+                    "checked"
+                ],
+                "img": [
+                    "src"
+                ]
+            },
+            "extensions": [
+                "mdx_gfm:GithubFlavoredMarkdownExtension"
+            ]
+        }
+    }
+}
+```
+
+The `<input type="" checked disabled>` attributes are needed to support rendering checkboxes in issue descriptions.
 
 ## Markdown in templates
 
@@ -114,4 +177,18 @@ The plugin also adds a new template function: `render_markdown(value)`. You can 
 * Two
 * Three
 """) }}
+```
+
+You can load additional extensions and whitelist tags by passing extra arguments to the function like so:
+
+```html+jinja
+{{ render_markdown("""
+## Markdown table
+
+First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+""", extensions=["tables"],
+    extra_tags=["table", "thead", "tr", "th", "td", "tbody"])) }}
 ```
