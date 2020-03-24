@@ -24,6 +24,22 @@ def test_render_cell_no_markdown_suffix():
     )
 
 
+@pytest.mark.asyncio
+async def test_render_template_tag(tmpdir):
+    (tmpdir / "template.html").write_text(
+        """
+    Demo:
+    {{ render_markdown("* one") }}
+    Done.
+    """.strip(),
+        "utf-8",
+    )
+    datasette = Datasette([], template_dir=str(tmpdir))
+    datasette.app()  # Configures Jinja
+    rendered = await datasette.render_template(["template.html"])
+    assert "Demo:\n    <ul>\n<li>one</li>\n</ul>\n    Done." == rendered
+
+
 @pytest.mark.parametrize(
     "metadata",
     [

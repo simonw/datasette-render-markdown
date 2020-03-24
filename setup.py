@@ -24,6 +24,6 @@ setup(
     packages=["datasette_render_markdown"],
     entry_points={"datasette": ["render_markdown = datasette_render_markdown"]},
     install_requires=["datasette", "markdown", "bleach"],
-    extras_require={"test": ["pytest"]},
+    extras_require={"test": ["pytest", "pytest-asyncio"]},
     tests_require=["datasette-render-markdown[test]"],
 )
