@@ -131,7 +131,7 @@ First, you will need to install the [py-gfm](https://py-gfm.readthedocs.io) pack
 
     $ pip install py-gfm
 
-Now you can configure it like so: note that the extension name is `mdx_gfm:GithubFlavoredMarkdownExtension` and you need to whitelist several extra HTML tags and attributes:
+Now you can configure it like this. Note that the extension name is `mdx_gfm:GithubFlavoredMarkdownExtension` and you need to whitelist several extra HTML tags and attributes:
 
 ```json
 {
@@ -147,7 +147,9 @@ Now you can configure it like so: note that the extension name is `mdx_gfm:Githu
             ],
             "extra_attrs": {
                 "input": [
-                    "type"
+                    "type",
+                    "disabled",
+                    "checked"
                 ],
                 "img": [
                     "src"
@@ -160,6 +162,8 @@ Now you can configure it like so: note that the extension name is `mdx_gfm:Githu
     }
 }
 ```
+
+The `<input type="" checked disabled>` attributes are needed to support rendering checkboxes in issue descriptions.
 
 ## Markdown in templates
 
