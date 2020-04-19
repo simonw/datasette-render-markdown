@@ -131,6 +131,8 @@ First, you will need to install the [py-gfm](https://py-gfm.readthedocs.io) pack
 
     $ pip install py-gfm
 
+Note that `py-gfm` has [a bug](https://github.com/Zopieux/py-gfm/issues/13) that causes it to pin to `Markdown<3.0` - so if you are using it you should install it _before_ installing `datasette-render-markdown` to ensure you get a compatibly version of that dependency.
+
 Now you can configure it like this. Note that the extension name is `mdx_gfm:GithubFlavoredMarkdownExtension` and you need to whitelist several extra HTML tags and attributes:
 
 ```json
