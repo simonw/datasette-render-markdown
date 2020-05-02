@@ -38,6 +38,9 @@ def render_cell(value, column, table, database, datasette):
 
 
 def render_markdown(value, extensions=None, extra_tags=None, extra_attrs=None):
+    attributes = {"a": ["href"]}
+    if extra_attrs:
+        attributes.update(extra_attrs)
     html = bleach.linkify(
         bleach.clean(
             markdown.markdown(
@@ -66,7 +69,7 @@ def render_markdown(value, extensions=None, extra_tags=None, extra_attrs=None):
                 "h6",
             ]
             + (extra_tags or []),
-            attributes=extra_attrs or {},
+            attributes=attributes,
         )
     )
     return jinja2.Markup(html)

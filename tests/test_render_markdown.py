@@ -91,8 +91,8 @@ def test_render_markdown_metadata_patterns(metadata):
 
 
 def test_render_markdown_default_pattern():
-    expected = "<h1>Hello there</h1>\n<ul>\n<li>one\n<em>two\n</em>three</li>\n</ul>"
-    input = "# Hello there\n* one\n*two\n*three"
+    expected = '<h1>Hello there</h1>\n<ul>\n<li><a href="https://www.example.com/" rel="nofollow">one</a>\n<em>two\n</em>three</li>\n</ul>'
+    input = "# Hello there\n* [one](https://www.example.com/)\n*two\n*three"
     actual = render_cell(
         input,
         column="demo_markdown",
@@ -103,7 +103,7 @@ def test_render_markdown_default_pattern():
     assert expected == actual
 
 
-def test_render_markdown_default_pattern_disabled_if_empty_listt():
+def test_render_markdown_default_pattern_disabled_if_empty_list():
     input = "# Hello there\n* one\n*two\n*three"
     assert None == render_cell(
         input,
@@ -156,10 +156,10 @@ def test_explicit_column(metadata):
 
 
 MARKDOWN_TABLE = """
-First Header  | Second Header
+First Header | Second Header
 ------------- | -------------
-Content Cell  | Content Cell
-Content Cell  | Content Cell
+[Content Cell](https://www.example.com/) | Content Cell
+Content Cell | Content Cell
 """.strip()
 
 RENDERED_TABLE = """
@@ -172,7 +172,7 @@ RENDERED_TABLE = """
 </thead>
 <tbody>
 <tr>
-<td>Content Cell</td>
+<td><a href="https://www.example.com/" rel="nofollow">Content Cell</a></td>
 <td>Content Cell</td>
 </tr>
 <tr>
@@ -194,10 +194,10 @@ def test_extensions():
     )
     assert (
         """
-<p>First Header  | Second Header
+<p>First Header | Second Header
 ------------- | -------------
-Content Cell  | Content Cell
-Content Cell  | Content Cell</p>
+<a href="https://www.example.com/" rel="nofollow">Content Cell</a> | Content Cell
+Content Cell | Content Cell</p>
     """.strip()
         == no_extension
     )
