@@ -37,7 +37,10 @@ async def test_render_template_tag(tmpdir):
     datasette = Datasette([], template_dir=str(tmpdir))
     datasette.app()  # Configures Jinja
     rendered = await datasette.render_template(["template.html"])
-    assert "Demo:\n    <ul>\n<li>one</li>\n</ul>\n    Done." == rendered
+    assert (
+        'Demo:\n    <div style="white-space: normal"><ul>\n<li>one</li>\n</ul></div>\n    Done.'
+        == rendered
+    )
 
 
 @pytest.mark.parametrize(
@@ -50,7 +53,9 @@ async def test_render_template_tag(tmpdir):
                     "tables": {
                         "mytable": {
                             "plugins": {
-                                "datasette-render-markdown": {"patterns": ["*_md"],}
+                                "datasette-render-markdown": {
+                                    "patterns": ["*_md"],
+                                }
                             }
                         }
                     }
@@ -61,16 +66,26 @@ async def test_render_template_tag(tmpdir):
         {
             "databases": {
                 "mydatabase": {
-                    "plugins": {"datasette-render-markdown": {"patterns": ["*_md"],}}
+                    "plugins": {
+                        "datasette-render-markdown": {
+                            "patterns": ["*_md"],
+                        }
+                    }
                 }
             }
         },
         # Global level
-        {"plugins": {"datasette-render-markdown": {"patterns": ["*_md"],}}},
+        {
+            "plugins": {
+                "datasette-render-markdown": {
+                    "patterns": ["*_md"],
+                }
+            }
+        },
     ],
 )
 def test_render_markdown_metadata_patterns(metadata):
-    expected = "<h1>Hello there</h1>\n<ul>\n<li>one\n<em>two\n</em>three</li>\n</ul>"
+    expected = '<div style="white-space: normal"><h1>Hello there</h1>\n<ul>\n<li>one\n<em>two\n</em>three</li>\n</ul></div>'
     input = "# Hello there\n* one\n*two\n*three"
     actual = render_cell(
         input,
@@ -91,7 +106,7 @@ def test_render_markdown_metadata_patterns(metadata):
 
 
 def test_render_markdown_default_pattern():
-    expected = '<h1>Hello there</h1>\n<ul>\n<li><a href="https://www.example.com/" rel="nofollow">one</a>\n<em>two\n</em>three</li>\n</ul>'
+    expected = '<div style="white-space: normal"><h1>Hello there</h1>\n<ul>\n<li><a href="https://www.example.com/" rel="nofollow">one</a>\n<em>two\n</em>three</li>\n</ul></div>'
     input = "# Hello there\n* [one](https://www.example.com/)\n*two\n*three"
     actual = render_cell(
         input,
@@ -126,7 +141,9 @@ def test_render_markdown_default_pattern_disabled_if_empty_list():
                     "tables": {
                         "mytable": {
                             "plugins": {
-                                "datasette-render-markdown": {"columns": ["body"],}
+                                "datasette-render-markdown": {
+                                    "columns": ["body"],
+                                }
                             }
                         }
                     }
@@ -137,21 +154,34 @@ def test_render_markdown_default_pattern_disabled_if_empty_list():
         {
             "databases": {
                 "mydatabase": {
-                    "plugins": {"datasette-render-markdown": {"columns": ["body"],}}
+                    "plugins": {
+                        "datasette-render-markdown": {
+                            "columns": ["body"],
+                        }
+                    }
                 }
             }
         },
         # Global level
-        {"plugins": {"datasette-render-markdown": {"columns": ["body"],}}},
+        {
+            "plugins": {
+                "datasette-render-markdown": {
+                    "columns": ["body"],
+                }
+            }
+        },
     ],
 )
 def test_explicit_column(metadata):
-    assert "<p><em>hello</em></p>" == render_cell(
-        "*hello*",
-        column="body",
-        table="mytable",
-        database="mydatabase",
-        datasette=Datasette([], metadata=metadata),
+    assert (
+        '<div style="white-space: normal"><p><em>hello</em></p></div>'
+        == render_cell(
+            "*hello*",
+            column="body",
+            table="mytable",
+            database="mydatabase",
+            datasette=Datasette([], metadata=metadata),
+        )
     )
 
 
@@ -163,7 +193,7 @@ Content Cell | Content Cell
 """.strip()
 
 RENDERED_TABLE = """
-<table>
+<div style="white-space: normal"><table>
 <thead>
 <tr>
 <th>First Header</th>
@@ -180,7 +210,7 @@ RENDERED_TABLE = """
 <td>Content Cell</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 """.strip()
 
 
@@ -194,10 +224,10 @@ def test_extensions():
     )
     assert (
         """
-<p>First Header | Second Header
+<div style="white-space: normal"><p>First Header | Second Header
 ------------- | -------------
 <a href="https://www.example.com/" rel="nofollow">Content Cell</a> | Content Cell
-Content Cell | Content Cell</p>
+Content Cell | Content Cell</p></div>
     """.strip()
         == no_extension
     )

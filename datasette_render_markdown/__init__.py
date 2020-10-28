@@ -72,7 +72,7 @@ def render_markdown(value, extensions=None, extra_tags=None, extra_attrs=None):
             attributes=attributes,
         )
     )
-    return jinja2.Markup(html)
+    return jinja2.Markup('<div style="white-space: normal">{}</div>'.format(html))
 
 
 @hookimpl
