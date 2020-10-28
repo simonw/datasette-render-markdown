@@ -1,7 +1,8 @@
 # datasette-render-markdown
 
 [![PyPI](https://img.shields.io/pypi/v/datasette-render-markdown.svg)](https://pypi.org/project/datasette-render-markdown/)
-[![CircleCI](https://circleci.com/gh/simonw/datasette-render-markdown.svg?style=svg)](https://circleci.com/gh/simonw/datasette-render-markdown)
+[![Changelog](https://img.shields.io/github/v/release/simonw/datasette-render-markdown?include_prereleases&label=changelog)](https://github.com/simonw/datasette-render-markdown/releases)
+[![Tests](https://github.com/simonw/datasette-render-markdown/workflows/Test/badge.svg)](https://github.com/simonw/datasette-render-markdown/actions?query=workflow%3ATest)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/simonw/datasette-render-markdown/blob/main/LICENSE)
 
 Datasette plugin for rendering Markdown.
