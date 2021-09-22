@@ -4,6 +4,7 @@ from fnmatch import fnmatch
 import markdown
 from datasette import hookimpl
 import jinja2
+from markupsafe import Markup
 
 
 @hookimpl()
@@ -72,7 +73,7 @@ def render_markdown(value, extensions=None, extra_tags=None, extra_attrs=None):
             attributes=attributes,
         )
     )
-    return jinja2.Markup('<div style="white-space: normal">{}</div>'.format(html))
+    return Markup('<div style="white-space: normal">{}</div>'.format(html))
 
 
 @hookimpl
