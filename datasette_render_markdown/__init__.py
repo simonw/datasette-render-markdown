@@ -1,5 +1,7 @@
 import re
 import bleach
+from bleach.sanitizer import Cleaner
+from bleach.html5lib_shim import Filter
 from fnmatch import fnmatch
 import markdown
 from datasette import hookimpl
@@ -39,41 +41,53 @@ def render_cell(value, column, table, database, datasette):
 
 
 def render_markdown(value, extensions=None, extra_tags=None, extra_attrs=None):
-    attributes = {"a": ["href"]}
+    attributes = {"a": ["href"], "img": ["src", "alt"]}
     if extra_attrs:
         attributes.update(extra_attrs)
+    cleaner = Cleaner(
+        tags=[
+            "a",
+            "abbr",
+            "acronym",
+            "b",
+            "blockquote",
+            "code",
+            "em",
+            "i",
+            "li",
+            "ol",
+            "strong",
+            "ul",
+            "pre",
+            "p",
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "img",
+        ]
+        + (extra_tags or []),
+        attributes=attributes,
+        filters=[ImageMaxWidthFilter],
+    )
     html = bleach.linkify(
-        bleach.clean(
-            markdown.markdown(
-                value, output_format="html5", extensions=extensions or []
-            ),
-            tags=[
-                "a",
-                "abbr",
-                "acronym",
-                "b",
-                "blockquote",
-                "code",
-                "em",
-                "i",
-                "li",
-                "ol",
-                "strong",
-                "ul",
-                "pre",
-                "p",
-                "h1",
-                "h2",
-                "h3",
-                "h4",
-                "h5",
-                "h6",
-            ]
-            + (extra_tags or []),
-            attributes=attributes,
+        cleaner.clean(
+            markdown.markdown(value, output_format="html5", extensions=extensions or [])
         )
     )
     return Markup('<div style="white-space: normal">{}</div>'.format(html))
+
+
+class ImageMaxWidthFilter(Filter):
+    """Adds style="max-width: 100%" to any image tags"""
+
+    def __iter__(self):
+        for token in Filter.__iter__(self):
+            if token["type"] == "EmptyTag" and token["name"] == "img":
+                token["data"][(None, "style")] = "max-width: 100%"
+            yield token
 
 
 @hookimpl

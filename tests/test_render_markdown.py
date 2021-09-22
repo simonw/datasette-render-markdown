@@ -185,6 +185,28 @@ def test_explicit_column(metadata):
     )
 
 
+@pytest.mark.parametrize(
+    "input,expected",
+    (
+        ("", '<div style="white-space: normal"></div>'),
+        ("# Heading", '<div style="white-space: normal"><h1>Heading</h1></div>'),
+        (
+            "![Alt text](https://www.example.com/blah.png)",
+            '<div style="white-space: normal"><p><img alt="Alt text" src="https://www.example.com/blah.png" style="max-width: 100%"></p></div>',
+        ),
+    ),
+)
+def test_miscellaneous_markup(input, expected):
+    actual = render_cell(
+        input,
+        column="demo_markdown",
+        table="mytable",
+        database="mydatabase",
+        datasette=Datasette([]),
+    )
+    assert actual == expected
+
+
 MARKDOWN_TABLE = """
 First Header | Second Header
 ------------- | -------------

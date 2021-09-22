@@ -141,7 +141,6 @@ Now you can configure it like this. Note that the extension name is `mdx_gfm:Git
     "plugins": {
         "datasette-render-markdown": {
             "extra_tags": [
-                "img",
                 "hr",
                 "br",
                 "details",
@@ -154,9 +153,6 @@ Now you can configure it like this. Note that the extension name is `mdx_gfm:Git
                     "disabled",
                     "checked"
                 ],
-                "img": [
-                    "src"
-                ]
             },
             "extensions": [
                 "mdx_gfm:GithubFlavoredMarkdownExtension"
