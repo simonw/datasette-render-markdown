@@ -118,7 +118,7 @@ Here's how to enable support for [Markdown tables](https://python-markdown.githu
     "plugins": {
         "datasette-render-markdown": {
             "extensions": ["tables"],
-            "extra_tags": ["table", "thead", "tr", "th", "td", "tbody"],
+            "extra_tags": ["table", "thead", "tr", "th", "td", "tbody"]
         }
     }
 }
@@ -190,4 +190,12 @@ Content Cell  | Content Cell
 Content Cell  | Content Cell
 """, extensions=["tables"],
     extra_tags=["table", "thead", "tr", "th", "td", "tbody"])) }}
+```
+To enable Markdown images, use this:
+```html+jinja
+{{ render_markdown("""
+## An image
+
+![alt text here](https://url-to-image.png)
+""", extra_tags=["img"], extra_attrs={"img": ["src", "alt"]}) }}
 ```
