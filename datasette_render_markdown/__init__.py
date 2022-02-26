@@ -75,7 +75,8 @@ def render_markdown(value, extensions=None, extra_tags=None, extra_attrs=None):
     html = bleach.linkify(
         cleaner.clean(
             markdown.markdown(value, output_format="html5", extensions=extensions or [])
-        )
+        ),
+        skip_tags=["pre"],
     )
     return Markup('<div style="white-space: normal">{}</div>'.format(html))
 

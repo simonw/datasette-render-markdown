@@ -1,6 +1,7 @@
-from datasette_render_markdown import render_cell
+from datasette_render_markdown import render_cell, render_markdown, Markup
 from datasette.app import Datasette
 import pytest
+import textwrap
 
 
 @pytest.mark.parametrize("value", [1, 1.1, b"binary"])
@@ -286,3 +287,25 @@ async def test_render_template_tag_with_extensions(tmpdir):
     datasette.app()  # Configures Jinja
     rendered = await datasette.render_template(["template.html"])
     assert RENDERED_TABLE == rendered
+
+
+def test_render_markdown_no_linkify_inside_code_blocks():
+    input = textwrap.dedent(
+        """
+    # Heading
+
+    Should be URLified: datasette.name
+
+    Should not be URLified:
+
+        select datasette.name from datasette
+    """
+    )
+    output = render_markdown(input)
+    assert output == Markup(
+        '<div style="white-space: normal"><h1>Heading</h1>\n'
+        '<p>Should be URLified: <a href="http://datasette.name" rel="nofollow">datasette.name</a></p>\n'
+        "<p>Should not be URLified:</p>\n"
+        "<pre><code>select datasette.name from datasette\n"
+        "</code></pre></div>"
+    )
