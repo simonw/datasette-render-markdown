@@ -35,8 +35,8 @@ async def test_render_template_tag(tmpdir):
     """.strip(),
         "utf-8",
     )
-    datasette = Datasette([], template_dir=str(tmpdir))
-    datasette.app()  # Configures Jinja
+    datasette = Datasette(template_dir=str(tmpdir))
+    await datasette.invoke_startup()
     rendered = await datasette.render_template(["template.html"])
     assert (
         'Demo:\n    <div style="white-space: normal"><ul>\n<li>one</li>\n</ul></div>\n    Done.'
@@ -93,7 +93,7 @@ def test_render_markdown_metadata_patterns(metadata):
         column="demo_md",
         table="mytable",
         database="mydatabase",
-        datasette=Datasette([], metadata=metadata),
+        datasette=Datasette(metadata=metadata),
     )
     assert expected == actual
     # Without metadata should not render
@@ -127,7 +127,7 @@ def test_render_markdown_default_pattern_disabled_if_empty_list():
         table="mytable",
         database="mydatabase",
         datasette=Datasette(
-            [], metadata={"plugins": {"datasette-render-markdown": {"patterns": []}}}
+            metadata={"plugins": {"datasette-render-markdown": {"patterns": []}}}
         ),
     )
 
@@ -181,7 +181,7 @@ def test_explicit_column(metadata):
             column="body",
             table="mytable",
             database="mydatabase",
-            datasette=Datasette([], metadata=metadata),
+            datasette=Datasette(metadata=metadata),
         )
     )
 
@@ -283,8 +283,8 @@ async def test_render_template_tag_with_extensions(tmpdir):
         + '""", extensions=["tables"], extra_tags=["table", "thead", "tr", "th", "td", "tbody"]) }}',
         "utf-8",
     )
-    datasette = Datasette([], template_dir=str(tmpdir))
-    datasette.app()  # Configures Jinja
+    datasette = Datasette(template_dir=str(tmpdir))
+    await datasette.invoke_startup()
     rendered = await datasette.render_template(["template.html"])
     assert RENDERED_TABLE == rendered
 
