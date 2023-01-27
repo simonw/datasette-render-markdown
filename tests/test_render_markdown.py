@@ -195,6 +195,14 @@ def test_explicit_column(metadata):
             "![Alt text](https://www.example.com/blah.png)",
             '<div style="white-space: normal"><p><img alt="Alt text" src="https://www.example.com/blah.png" style="max-width: 100%"></p></div>',
         ),
+        (
+            "[This & That](https://www.example.com/)",
+            (
+                '<div style="white-space: normal">'
+                '<p><a href="https://www.example.com/" rel="nofollow">'
+                "This &amp; That</a></p></div>"
+            ),
+        ),
     ),
 )
 def test_miscellaneous_markup(input, expected):

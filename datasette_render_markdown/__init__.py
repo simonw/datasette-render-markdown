@@ -1,8 +1,10 @@
 import re
 import bleach
 from bleach.sanitizer import Cleaner
+from bleach.linkifier import LinkifyFilter
 from bleach.html5lib_shim import Filter
 from fnmatch import fnmatch
+from functools import partial
 import markdown
 from datasette import hookimpl
 import jinja2
@@ -70,13 +72,10 @@ def render_markdown(value, extensions=None, extra_tags=None, extra_attrs=None):
         ]
         + (extra_tags or []),
         attributes=attributes,
-        filters=[ImageMaxWidthFilter],
+        filters=[ImageMaxWidthFilter, partial(LinkifyFilter, skip_tags={"pre"})],
     )
-    html = bleach.linkify(
-        cleaner.clean(
-            markdown.markdown(value, output_format="html5", extensions=extensions or [])
-        ),
-        skip_tags=["pre"],
+    html = cleaner.clean(
+        markdown.markdown(value, output_format="html5", extensions=extensions or [])
     )
     return Markup('<div style="white-space: normal">{}</div>'.format(html))
 
