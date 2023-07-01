@@ -6,22 +6,28 @@ import textwrap
 
 @pytest.mark.parametrize("value", [1, 1.1, b"binary"])
 def test_render_cell_not_str(value):
-    assert None == render_cell(
-        value,
-        column="demo_markdown",
-        table="mytable",
-        database="mydatabase",
-        datasette=Datasette([]),
+    assert (
+        render_cell(
+            value,
+            column="demo_markdown",
+            table="mytable",
+            database="mydatabase",
+            datasette=Datasette([]),
+        )
+        is None
     )
 
 
 def test_render_cell_no_markdown_suffix():
-    assert None == render_cell(
-        "# hello",
-        column="no_suffix",
-        table="mytable",
-        database="mydatabase",
-        datasette=Datasette([]),
+    assert (
+        render_cell(
+            "# hello",
+            column="no_suffix",
+            table="mytable",
+            database="mydatabase",
+            datasette=Datasette([]),
+        )
+        is None
     )
 
 
@@ -97,12 +103,15 @@ def test_render_markdown_metadata_patterns(metadata):
     )
     assert expected == actual
     # Without metadata should not render
-    assert None == render_cell(
-        input,
-        column="demo_md",
-        table="mytable",
-        database="mydatabase",
-        datasette=Datasette([]),
+    assert (
+        render_cell(
+            input,
+            column="demo_md",
+            table="mytable",
+            database="mydatabase",
+            datasette=Datasette([]),
+        )
+        is None
     )
 
 
@@ -121,14 +130,17 @@ def test_render_markdown_default_pattern():
 
 def test_render_markdown_default_pattern_disabled_if_empty_list():
     input = "# Hello there\n* one\n*two\n*three"
-    assert None == render_cell(
-        input,
-        column="demo_markdown",
-        table="mytable",
-        database="mydatabase",
-        datasette=Datasette(
-            metadata={"plugins": {"datasette-render-markdown": {"patterns": []}}}
-        ),
+    assert (
+        render_cell(
+            input,
+            column="demo_markdown",
+            table="mytable",
+            database="mydatabase",
+            datasette=Datasette(
+                metadata={"plugins": {"datasette-render-markdown": {"patterns": []}}}
+            ),
+        )
+        is None
     )
 
 
