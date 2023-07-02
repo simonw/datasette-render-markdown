@@ -5,14 +5,14 @@
 [![Tests](https://github.com/simonw/datasette-render-markdown/workflows/Test/badge.svg)](https://github.com/simonw/datasette-render-markdown/actions?query=workflow%3ATest)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/simonw/datasette-render-markdown/blob/main/LICENSE)
 
-Datasette plugin for rendering Markdown.
+[Datasette](https://datasette.io/) plugin for rendering Markdown.
 
 ## Installation
 
 Install this plugin in the same environment as Datasette to enable this new functionality:
-
-    $ pip install datasette-render-markdown
-
+```bash
+datasette install datasette-render-markdown
+```
 ## Usage
 
 You can explicitly list the columns you would like to treat as Markdown using [plugin configuration](https://datasette.readthedocs.io/en/stable/plugins.html#plugin-configuration) in a `metadata.json` file.
