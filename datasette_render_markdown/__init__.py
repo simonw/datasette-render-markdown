@@ -137,25 +137,38 @@ class MarkdownExtension(Extension):
                     ),
                     lineno,
                 )
-            attrs[gathered[i].value] = json.loads(gathered[i + 2].value)
+            attrs[gathered[i].value] = gathered[i + 2].value
 
         # Validate the attributes
-        # raise TemplateSyntaxError("attrs: {}".format(attrs), lineno)
+        errors = []
+        kwargs = {}
+        for attr, value in attrs.items():
+            if attr in ("extensions", "extra_tags"):
+                kwargs[attr] = value.split()
+            elif attr == "extra_attrs":
+                # Custom syntax: tag:attr1,attr2 tag2:attr3,attr4
+                extra_attrs = {}
+                for tag_attrs in value.split():
+                    tag, attrs = tag_attrs.split(":")
+                    extra_attrs[tag] = attrs.split(",")
+                kwargs["extra_attrs"] = extra_attrs
+            else:
+                raise TemplateSyntaxError("Unknown attribute '{}'".format(attr), lineno)
 
         body = parser.parse_statements(["name:endmarkdown"], drop_needle=True)
 
         return nodes.CallBlock(
             # I couldn't figure out how to send attrs to the _render_markdown
             # method other than json.dumps and then passing as a nodes.Const
-            self.call_method("_render_markdown", [nodes.Const(json.dumps(attrs))]),
+            self.call_method("_render_markdown", [nodes.Const(json.dumps(kwargs))]),
             [],
             [],
             body,
         ).set_lineno(lineno)
 
-    async def _render_markdown(self, attrs_json, caller):
-        attrs = json.loads(attrs_json)
-        return render_markdown(await caller(), **attrs)
+    async def _render_markdown(self, kwargs_json, caller):
+        kwargs = json.loads(kwargs_json)
+        return render_markdown(await caller(), **kwargs)
 
 
 @hookimpl
