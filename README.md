@@ -194,7 +194,7 @@ The `extensions=` and `extra_tags=` attributes accept a space-separated list of 
 
 The `extra_attrs=` attribute accepts a space-separated list of `tag:attr1,attr2` values - each tag can specify one or more attributes that should be allowed.
 
-You can also use the `{{ render_template(...) }}` function, like this:
+You can also use the `{{ render_markdown(...) }}` function, like this:
 
 ```html+jinja
 {{ render_markdown("""
