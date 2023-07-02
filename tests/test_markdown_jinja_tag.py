@@ -25,7 +25,8 @@ import textwrap
         (
             textwrap.dedent(
                 """
-            {% markdown extensions="tables" extra_tags="table thead tr th td tbody" %}
+            {% markdown extensions="tables"
+                extra_tags="table thead tr th td tbody" %}
             ## Markdown table
 
             First Header  | Second Header

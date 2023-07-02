@@ -109,7 +109,7 @@ The [Python-Markdown library](https://python-markdown.github.io/) that powers th
 
 You can configure support for extensions using the `"extensions"` key in your plugin metadata configuration.
 
-Since extensions may introduce new HTML tags, you will also need to add those tags to the list of tags that are allowed by the [Bleach](https://bleach.readthedocs.io/) sanitizer. You can do that using the `"extra_tags"` key, and you can whitelist additional HTML attributes using `"extra_attrs"`. See [the Bleach documentation](https://bleach.readthedocs.io/en/latest/clean.html#allowed-tags-tags) for more information on this.
+Since extensions may introduce new HTML tags, you will also need to add those tags to the list of tags that are allowed by the [Bleach](https://bleach.readthedocs.io/) sanitizer. You can do that using the `"extra_tags"` key, and you can allowlist additional HTML attributes using `"extra_attrs"`. See [the Bleach documentation](https://bleach.readthedocs.io/en/latest/clean.html#allowed-tags-tags) for more information on this.
 
 Here's how to enable support for [Markdown tables](https://python-markdown.github.io/extensions/tables/):
 
@@ -134,7 +134,7 @@ First, you will need to install the [py-gfm](https://py-gfm.readthedocs.io) pack
 
 Note that `py-gfm` has [a bug](https://github.com/Zopieux/py-gfm/issues/13) that causes it to pin to `Markdown<3.0` - so if you are using it you should install it _before_ installing `datasette-render-markdown` to ensure you get a compatibly version of that dependency.
 
-Now you can configure it like this. Note that the extension name is `mdx_gfm:GithubFlavoredMarkdownExtension` and you need to whitelist several extra HTML tags and attributes:
+Now you can configure it like this. Note that the extension name is `mdx_gfm:GithubFlavoredMarkdownExtension` and you need to allowlist several extra HTML tags and attributes:
 
 ```json
 {
@@ -166,19 +166,34 @@ The `<input type="" checked disabled>` attributes are needed to support renderin
 
 ## Markdown in templates
 
-The plugin also adds a new template function: `render_markdown(value)`. You can use this in your templates like so:
+The plugin introduces a new template tag, `{% markdown %}...{% endmarkdown %}` which can be used to render Markdown in your Jinja templates.
 
 ```html+jinja
-{{ render_markdown("""
-# This is markdown
-
-* One
-* Two
-* Three
-""") }}
+{% markdown %}
+# This will be rendered as markdown
+{% endmarkdown %}
 ```
+You can pass arguments to the `markdown` tag to enable extensions and allowlist additional tags and attributes:
+```html+jinja
+{% markdown extensions="tables"
+  extra_tags="table thead tr th td tbody" 
+  extra_attrs="p:id,class a:name,href" %}
+## Markdown table
 
-You can load additional extensions and whitelist tags by passing extra arguments to the function like this:
+First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+
+<a href="https://www.example.com/" name="namehere">Example</a>
+<p id="paragraph" class="klass">Paragraph</p>
+{% endmarkdown %}
+```
+The `extensions=` and `extra_tags=` attributes accept a space-separated list of values.
+
+The `extra_attrs=` attribute accepts a space-separated list of `tag:attr1,attr2` values - so each tag can specify one or more attributes that should be allowed.
+
+You can also use the `{{ render_template(...) }}` function, like this:
 
 ```html+jinja
 {{ render_markdown("""
@@ -191,3 +206,5 @@ Content Cell  | Content Cell
 """, extensions=["tables"],
     extra_tags=["table", "thead", "tr", "th", "td", "tbody"])) }}
 ```
+
+The `{% markdown %}` tag is recommended, as it avoids the need to `\"` escape quotes in your Markdown content.
