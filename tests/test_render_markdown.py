@@ -32,7 +32,7 @@ def test_render_cell_no_markdown_suffix():
 
 
 @pytest.mark.asyncio
-async def test_render_template_tag(tmpdir):
+async def test_render_template_function(tmpdir):
     (tmpdir / "template.html").write_text(
         """
     Demo:
@@ -296,7 +296,7 @@ Content Cell | Content Cell</p></div>
 
 
 @pytest.mark.asyncio
-async def test_render_template_tag_with_extensions(tmpdir):
+async def test_render_template_function_with_extensions(tmpdir):
     (tmpdir / "template.html").write_text(
         '{{ render_markdown("""'
         + MARKDOWN_TABLE

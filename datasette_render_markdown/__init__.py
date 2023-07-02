@@ -1,13 +1,14 @@
-import re
-import bleach
 from bleach.sanitizer import Cleaner
 from bleach.linkifier import LinkifyFilter
 from bleach.html5lib_shim import Filter
 from fnmatch import fnmatch
 from functools import partial
+from jinja2 import nodes
+from jinja2.exceptions import TemplateSyntaxError
+from jinja2.ext import Extension
+import json
 import markdown
 from datasette import hookimpl
-import jinja2
 from markupsafe import Markup
 
 
@@ -95,3 +96,68 @@ def extra_template_vars():
     return {
         "render_markdown": render_markdown,
     }
+
+
+class MarkdownExtension(Extension):
+    tags = set(["markdown"])
+
+    def __init__(self, environment):
+        super(MarkdownExtension, self).__init__(environment)
+
+    def parse(self, parser):
+        # We need this for reporting errors
+        lineno = next(parser.stream).lineno
+
+        # Gather tokens up to the next block_end ('%}')
+        gathered = []
+        while parser.stream.current.type != "block_end":
+            gathered.append(next(parser.stream))
+
+        # If all has gone well, we will have a sequence of triples of tokens:
+        #   (type='name, value='attribute name'),
+        #   (type='assign', value='='),
+        #   (type='string', value='attribute value')
+        # Anything else is a parse error
+
+        if len(gathered) % 3 != 0:
+            raise TemplateSyntaxError("Invalid syntax for markdown tag", lineno)
+        attrs = {}
+        for i in range(0, len(gathered), 3):
+            if (
+                gathered[i].type != "name"
+                or gathered[i + 1].type != "assign"
+                or gathered[i + 2].type != "string"
+            ):
+                raise TemplateSyntaxError(
+                    (
+                        "Invalid syntax for markdown attribute - got "
+                        "'{}', should be name=\"value\"".format(
+                            "".join([str(t.value) for t in gathered[i : i + 3]]),
+                        )
+                    ),
+                    lineno,
+                )
+            attrs[gathered[i].value] = json.loads(gathered[i + 2].value)
+
+        # Validate the attributes
+        # raise TemplateSyntaxError("attrs: {}".format(attrs), lineno)
+
+        body = parser.parse_statements(["name:endmarkdown"], drop_needle=True)
+
+        return nodes.CallBlock(
+            # I couldn't figure out how to send attrs to the _render_markdown
+            # method other than json.dumps and then passing as a nodes.Const
+            self.call_method("_render_markdown", [nodes.Const(json.dumps(attrs))]),
+            [],
+            [],
+            body,
+        ).set_lineno(lineno)
+
+    async def _render_markdown(self, attrs_json, caller):
+        attrs = json.loads(attrs_json)
+        return render_markdown(await caller(), **attrs)
+
+
+@hookimpl
+def prepare_jinja2_environment(env):
+    env.add_extension(MarkdownExtension)
