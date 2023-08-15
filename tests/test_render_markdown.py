@@ -37,6 +37,9 @@ async def test_render_template_function(tmpdir):
         """
     Demo:
     {{ render_markdown("* one") }}
+
+    With a None:
+    {{ render_markdown(None) }}
     Done.
     """.strip(),
         "utf-8",
@@ -44,9 +47,14 @@ async def test_render_template_function(tmpdir):
     datasette = Datasette(template_dir=str(tmpdir))
     await datasette.invoke_startup()
     rendered = await datasette.render_template(["template.html"])
-    assert (
-        'Demo:\n    <div style="white-space: normal"><ul>\n<li>one</li>\n</ul></div>\n    Done.'
-        == rendered
+    assert rendered == (
+        "Demo:\n"
+        '    <div style="white-space: normal"><ul>\n'
+        "<li>one</li>\n"
+        "</ul></div>\n\n"
+        "    With a None:\n"
+        "    \n"
+        "    Done."
     )
 
 
@@ -215,6 +223,7 @@ def test_explicit_column(metadata):
                 "This &amp; That</a></p></div>"
             ),
         ),
+        (None, None),
     ),
 )
 def test_miscellaneous_markup(input, expected):

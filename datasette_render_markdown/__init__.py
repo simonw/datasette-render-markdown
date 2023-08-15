@@ -44,6 +44,8 @@ def render_cell(value, column, table, database, datasette):
 
 
 def render_markdown(value, extensions=None, extra_tags=None, extra_attrs=None):
+    if value is None:
+        return Markup("")
     attributes = {"a": ["href"], "img": ["src", "alt"]}
     if extra_attrs:
         attributes.update(extra_attrs)
@@ -140,7 +142,6 @@ class MarkdownExtension(Extension):
             attrs[gathered[i].value] = gathered[i + 2].value
 
         # Validate the attributes
-        errors = []
         kwargs = {}
         for attr, value in attrs.items():
             if attr in ("extensions", "extra_tags"):
